@@ -1,0 +1,25 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "/home/shambhukumar/embedded_workspace/stm32f407disc/stm32f407vgt6_test/**"
+            ],
+            "defines": [],
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "c17",
+            "cppStandard": "gnu++17",
+            "intelliSenseMode": "linux-gcc-x64",
+            "mergeConfigurations": false,
+            "browse": {
+                "path": [
+                    "/home/shambhukumar/embedded_workspace/stm32f407disc/stm32f407vgt6_test/**",
+                    "${workspaceFolder}",
+                    "/home/shambhukumar/embedded_workspace/stm32f407disc/stm32f407vgt6_test/include/*"
+                ],
+                "limitSymbolsToIncludedHeaders": true
+            }
+        }
+    ],
+    "version": 4
+}
