@@ -29,6 +29,8 @@
 	
 > ****************************************************************************************
 
+# I2C Master Mode
+
 ### => Start Condition
 
 > reset POS bit in CR1. use in master rx mode for more than 2 byte only.
@@ -105,3 +107,25 @@
 > In general, before reading each data wait until BTF sets. $$$
 
 > ****************************************************************************************
+
+# I2C Slave
+
+## Slave Receiver
+
+### => Slave Rx mode Initialization
+
+> reset POS bit in CR1. use in master rx mode for more than 2 byte only.
+
+	1. enable ACK bit in CR1, return ACK if a byte received.
+	2. set slave address in OAR1.
+	3. wait until ADDR bit in SR1 reg. sets.
+	4. read SR1 and SR2 reg.
+	5. read received data from DR .
+	6. wait until RxNE bit in SR1 reg sets.
+	7. read SR1 reg.
+	8. wait until STOPF bit in SR1 sets.
+	9. if ADDR bit in SR1 set, read SR1 then SR2 reg.
+	10. if STOPF bit in SR1 set, read SR1 then write CR1 reg.
+
+
+

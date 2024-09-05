@@ -75,9 +75,11 @@ void i2c1_disable(void)
 	I2C1->CR1 &= ~(1<<0);	//disable i2c peripheral (clear PE bit)
 }
 
+// ************** I2C MASTER MODE ************
+
 /// @brief transmit start condition to sda line
 /// @param  void
-void i2c1_send_start(void)
+void i2c1_master_send_start(void)
 {
 	I2C1->CR1 &= ~(1<<11);	//clear POS bit
 	I2C1->CR1 |= (1<<10);	//enable acknowledgement bit (ACK)
@@ -88,7 +90,7 @@ void i2c1_send_start(void)
 
 /// @brief transmit slave address @ to for i2c connection with it
 /// @param  slave_addr address of the slave to select
-void i2c1_tx_slave_addr(uint8_t slave_addr)
+void i2c1_master_tx_slave_addr(uint8_t slave_addr)
 {
 	// LSB must be 0
 	I2C1->DR = (slave_addr << 1);	//send slave address to SDA line, this step also requied to clear SB
@@ -100,7 +102,7 @@ void i2c1_tx_slave_addr(uint8_t slave_addr)
 
 /// @brief transmit byte size data to sda line
 /// @param data byte to be transmitted via i2c1
-void i2c1_tx_data(uint8_t data)
+void i2c1_master_tx_data(uint8_t data)
 {
 	I2C1->DR = data;	//data to send
 	while((I2C1->SR1 & (1<<7)) == 0);	//wait until TxE bit sets, data shift reg empty
@@ -108,15 +110,60 @@ void i2c1_tx_data(uint8_t data)
 
 /// @brief transmit stop condition to sda line to end communication
 /// @param  void
-void i2c1_tx_stop(void)
+void i2c1_master_tx_stop(void)
 {
 	while((I2C1->SR1 & (1<<7)) && (I2C1->SR1 & (1<<2)) == 0);	//wait until TxE and BTF bit sets
 	I2C1->CR1 |= (1<<9);
 	while((I2C1->SR2 & (1<<1)) == 0);	//wait until BUSY bit clears, indicates communication terminated
 }
 
+// ************* I2C SLAVE MODE **************
 
-// main driver code
+void i2c1_slave_config(void)
+{
+	I2C1->CR1 &= ~(1<<11);	//clear POS bit
+	I2C1->CR1 |= (1<<10);	//enable acknowledgement bit (ACK)
+	I2C1->OAR1 |= (1<<4) | (1<<14);	//slave @ = 0x08
+
+}
+
+void i2c1_slave_rx_address(void)
+{
+	while((I2C1->SR1 & (1<<1)) == 0);	//wait until ADDR bit set (sets when @ received)
+	dump_reg = I2C1->SR1;	//read SR1 reg to clear ADDR bit
+	dump_reg = I2C1->SR2;	//read SR2 reg to clear ADDR bit
+
+}
+
+uint8_t i2c1_slave_rx_data(void)
+{
+	uint8_t data = 0;
+
+	data = I2C1->DR;
+	while((I2C1->SR1 & (1<<6)) == 0);	//wait until RxNE bit sets, data shift reg empty
+
+	return data;
+}
+
+void i2c1_slave_rx_stop(void)
+{
+	dump_reg = I2C1->SR1;	//read SR1 reg
+	while((I2C1->SR1 & (1<<4)) == 0);	//wait until STOPF bit sets
+	if((I2C1->SR1 & (1<<1)) == 1)
+	{
+		dump_reg = I2C1->SR1;	//read SR1 reg to clear ADDR bit
+		dump_reg = I2C1->SR2;	//read SR2 reg to clear ADDR bit
+	}
+	if((I2C1->SR1 & (1<<4)) == 1)
+	{
+		dump_reg = I2C1->SR1;	//read SR1 to clear STOPF bit
+		I2C1->CR1 = 0;	//write CR1 to clear STOPF bit
+	}
+}
+
+
+
+// main driver code, master tx mode
 int main(void)
 {
 	volatile uint8_t i = 0;
