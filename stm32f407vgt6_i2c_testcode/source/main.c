@@ -79,6 +79,7 @@ void i2c1_disable(void)
 /// @param  void
 void i2c1_send_start(void)
 {
+	I2C1->CR1 &= ~(1<<11);	//clear POS bit
 	I2C1->CR1 |= (1<<10);	//enable acknowledgement bit (ACK)
 	I2C1->CR1 |= (1<<8);	//send start condition
 	while((I2C1->SR1 & (1<<0)) == 0);	//wait until start bit generated
@@ -94,15 +95,15 @@ void i2c1_tx_slave_addr(uint8_t slave_addr)
 	while((I2C1->SR1 & (1<<1)) == 0);	//wait until ADDR bit set (sets when @ sent)
 	dump_reg = I2C1->SR1;	//read SR1 reg to clear ADDR bit
 	dump_reg = I2C1->SR2;	//read SR2 reg to clear ADDR bit
+	while((I2C1->SR1 & (1<<7)) == 0);	//wait until TxE bit sets, data shift reg empty
 }
 
 /// @brief transmit byte size data to sda line
 /// @param data byte to be transmitted via i2c1
 void i2c1_tx_data(uint8_t data)
 {
-	while((I2C1->SR1 & (1<<7)) == 0);	//wait until TxE bit sets, data shift reg empty
 	I2C1->DR = data;	//data to send
-
+	while((I2C1->SR1 & (1<<7)) == 0);	//wait until TxE bit sets, data shift reg empty
 }
 
 /// @brief transmit stop condition to sda line to end communication
@@ -112,7 +113,6 @@ void i2c1_tx_stop(void)
 	while((I2C1->SR1 & (1<<7)) && (I2C1->SR1 & (1<<2)) == 0);	//wait until TxE and BTF bit sets
 	I2C1->CR1 |= (1<<9);
 	while((I2C1->SR2 & (1<<1)) == 0);	//wait until BUSY bit clears, indicates communication terminated
-	
 }
 
 
@@ -131,7 +131,7 @@ int main(void)
 		i2c1_send_start();
 		i2c1_tx_slave_addr(8);
 		// tx characters starting from '0'
-		for(i = 48;i < 56;i++)
+		for(i = 48;i <= 56;i++)
 		{
 			i2c1_tx_data(i);
 			

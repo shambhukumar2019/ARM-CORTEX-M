@@ -31,6 +31,8 @@
 
 ### => Start Condition
 
+> reset POS bit in CR1. use in master rx mode for more than 2 byte only.
+
 	1. enable ACK bit in CR1, return ACK if a byte received.
 	2. set start bit in CR1 to generate start condition (generates high to low pulse).
 	3. wait until SB bit in SR1 sets.
@@ -46,12 +48,13 @@
 	2. wait until ADDR bit in SR1 reg. sets.
 			LSB = 0 for master transmitter mode
 	3. read SR1 and SR2 reg. to clear ADDR bit.
+	4. wait for TxE bit in SR1 reg to set.
 
 
 #### => Send data
 
-	1. wait for TxE bit in SR1 reg to set.
-	2. again(only for 1st time) wait until TxE sets,Now put data in DR reg of I2C.
+	1. Now put data in DR reg of I2C.
+	2. wait for TxE bit in SR1 reg to set.
 	3. repeat from step 1 to send multiple bytes.
 
 
