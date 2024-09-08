@@ -19,21 +19,21 @@ elf: build_files/main.elf
 #  '@' in front of cmd prevents it from appearing during execution
 build_files/main.elf: build_files/startup_stm32f407vgtx.o build_files/main.o build_files/sysmem.o build_files/syscalls.o
 	@echo 'compiling and linking... $^'
-	@arm-none-eabi-gcc -Wall -mcpu=cortex-m4 -Og -T"STM32F407VGTX_FLASH.ld" -Wl,--print-memory-usage --specs=nosys.specs -Wl,-Map="build_files/main.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group -o $@ $^
+	@arm-none-eabi-gcc -Wall -mcpu=cortex-m4 -Og -g -T"STM32F407VGTX_FLASH.ld" -Wl,--print-memory-usage --specs=nosys.specs -Wl,-Map="build_files/main.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group -o $@ $^
 
 build_files/startup_stm32f407vgtx.o: startup_stm32f407vgtx.s
-	@arm-none-eabi-gcc -Wall -mcpu=cortex-m4 -Og --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -c $^ -o $@
+	@arm-none-eabi-gcc -Wall -mcpu=cortex-m4 -Og -g --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -c $^ -o $@
 	
 
 build_files/main.o: source/main.c
-	@arm-none-eabi-gcc -Wall -mcpu=cortex-m4 -Og --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Iinclude  -c $^ -o $@
+	@arm-none-eabi-gcc -Wall -mcpu=cortex-m4 -Og -g --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Iinclude  -c $^ -o $@
 
 
 build_files/sysmem.o: source/sysmem.c
-	@arm-none-eabi-gcc -Wall -mcpu=cortex-m4 -Og --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -c $^ -o $@
+	@arm-none-eabi-gcc -Wall -mcpu=cortex-m4 -Og -g --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -c $^ -o $@
 
 build_files/syscalls.o: source/syscalls.c
-	@arm-none-eabi-gcc -Wall -mcpu=cortex-m4 -Og --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -c $^ -o $@
+	@arm-none-eabi-gcc -Wall -mcpu=cortex-m4 -Og -g --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -c $^ -o $@
 
 size: 
 	@echo "calculating size of elf file...."

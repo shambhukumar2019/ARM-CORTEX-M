@@ -44,7 +44,7 @@ void i2c1_gpio_config(void)
 	RCC->AHB1ENR |= (1<<1);	//enable GPIOB clk
 	GPIOB->MODER |= (1<<13) | (1<<15);	//bit 12, bit 14 = 0, set PB6 and PB7 for alternate function mode
 	GPIOB->PUPDR |= (1<<12) | (1<<14);	//bit 13, bit 15 = 0, pullup enable for PB6 and PB7
-	GPIOB->OTYPER |= (1<<6) | (1<<7);	//open drain both I2C1_SDA, I2C1_SCL
+	GPIOB->OTYPER |= (1<<6) | (1<<7);	//open drain both I2C1_SDA (PB7), I2C1_SCL
 	GPIOB->AFR[0] |= (1<<26) | (1<<30);	//for PB6, PB7 set AF4 (I2C1)
 
 }
@@ -58,6 +58,7 @@ void i2c1_config(void)
 	RCC->APB1ENR |= (1<<21);	//enable i2c1 clk
 	I2C1->CR2 |= (1<<4);	//FREQ= 0b010000 = 16 MHz for i2c1 peripheral
 	I2C1->CCR |= (1<<4) | (1<<6);	//set i2c1_scl frequency = 100 KHz
+	I2C1->TRISE = 0;	//
 	I2C1->TRISE |= (1<<0) | (1<<4);	//set scl rise time to 1000ns
 }
 
@@ -117,18 +118,19 @@ void i2c1_master_tx_stop(void)
 	while((I2C1->SR2 & (1<<1)) == 0);	//wait until BUSY bit clears, indicates communication terminated
 }
 
-// ************* I2C SLAVE MODE **************
+
+// ************* I2C SLAVE MODE Start **************
 
 void i2c1_slave_config(void)
 {
-	I2C1->CR1 &= ~(1<<11);	//clear POS bit
-	I2C1->CR1 |= (1<<10);	//enable acknowledgement bit (ACK)
 	I2C1->OAR1 |= (1<<4) | (1<<14);	//slave @ = 0x08
-
+	I2C1->CR1 &= ~(1<<11);	//clear POS bit	
+	
 }
 
 void i2c1_slave_rx_address(void)
 {
+	I2C1->CR1 |= (1<<10);	//enable acknowledgement bit (ACK)
 	while((I2C1->SR1 & (1<<1)) == 0);	//wait until ADDR bit set (sets when @ received)
 	dump_reg = I2C1->SR1;	//read SR1 reg to clear ADDR bit
 	dump_reg = I2C1->SR2;	//read SR2 reg to clear ADDR bit
@@ -137,10 +139,10 @@ void i2c1_slave_rx_address(void)
 
 uint8_t i2c1_slave_rx_data(void)
 {
-	uint8_t data = 0;
+	volatile uint8_t data = 0;
 
-	data = I2C1->DR;
 	while((I2C1->SR1 & (1<<6)) == 0);	//wait until RxNE bit sets, data shift reg empty
+	data = I2C1->DR;
 
 	return data;
 }
@@ -161,29 +163,26 @@ void i2c1_slave_rx_stop(void)
 	}
 }
 
+// ************* I2C SLAVE MODE End **************
 
-
-// main driver code, master tx mode
+volatile uint8_t data = 0;
+// main driver code, slave rx mode
 int main(void)
 {
-	volatile uint8_t i = 0;
-
 	i2c1_gpio_config();
 	i2c1_config();
+	i2c1_slave_config();
 	i2c1_enable();
 	
+	
+	// i2c1_disable();
+
 	//eternal loop
 	for(;;)
 	{
-		i2c1_send_start();
-		i2c1_tx_slave_addr(8);
-		// tx characters starting from '0'
-		for(i = 48;i <= 56;i++)
-		{
-			i2c1_tx_data(i);
-			
-		}
-		temp_delay();
+		i2c1_slave_rx_address();
+		data = i2c1_slave_rx_data();
+		i2c1_slave_rx_stop();
 	}
 
 	return 0;

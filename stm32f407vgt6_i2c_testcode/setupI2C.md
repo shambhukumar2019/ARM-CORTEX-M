@@ -116,7 +116,7 @@
 
 > reset POS bit in CR1. use in master rx mode for more than 2 byte only.
 
-	1. enable ACK bit in CR1, return ACK if a byte received.
+	1. enable ACK bit in CR1 (both before peripheral enable and after that), return ACK if a byte received.
 	2. set slave address in OAR1.
 	3. wait until ADDR bit in SR1 reg. sets.
 	4. read SR1 and SR2 reg.
