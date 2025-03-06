@@ -1,8 +1,0 @@
-{
-    "files.associations": {
-        "stm32f407xx.h": "c",
-        "core_cm4.h": "c",
-        "compare": "c",
-        "cstdint": "c"
-    }
-}
