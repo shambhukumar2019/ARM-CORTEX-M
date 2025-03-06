@@ -44,7 +44,7 @@ void i2c1_gpio_config(void)
 	RCC->AHB1ENR |= (1<<1);	//enable GPIOB clk
 	GPIOB->MODER |= (1<<13) | (1<<15);	//bit 12, bit 14 = 0, set PB6 and PB7 for alternate function mode
 	GPIOB->PUPDR |= (1<<12) | (1<<14);	//bit 13, bit 15 = 0, pullup enable for PB6 and PB7
-	GPIOB->OTYPER |= (1<<6) | (1<<7);	//open drain both I2C1_SDA (PB7), I2C1_SCL
+	GPIOB->OTYPER |= (1<<6) | (1<<7);	//open drain both I2C1_SDA (PB7), I2C1_SCL (PB6)
 	GPIOB->AFR[0] |= (1<<26) | (1<<30);	//for PB6, PB7 set AF4 (I2C1)
 
 }
@@ -54,11 +54,13 @@ void i2c1_gpio_config(void)
 void i2c1_config(void)
 {
 	I2C1->CR1 |= (1<<15);	//i2c under software reset
+	__NOP();	//no operation
 	I2C1->CR1 &= ~(1<<15);	//i2c out of reset condition
 	RCC->APB1ENR |= (1<<21);	//enable i2c1 clk
 	I2C1->CR2 |= (1<<4);	//FREQ= 0b010000 = 16 MHz for i2c1 peripheral
+	// by default standard mode (100 KHz) selected
 	I2C1->CCR |= (1<<4) | (1<<6);	//set i2c1_scl frequency = 100 KHz
-	I2C1->TRISE = 0;	//
+	I2C1->TRISE = 0;	// clear TRISE reg
 	I2C1->TRISE |= (1<<0) | (1<<4);	//set scl rise time to 1000ns
 }
 
@@ -82,7 +84,7 @@ void i2c1_disable(void)
 /// @param  void
 void i2c1_master_send_start(void)
 {
-	I2C1->CR1 &= ~(1<<11);	//clear POS bit
+	I2C1->CR1 &= ~(1<<11);	// clear POS bit
 	I2C1->CR1 |= (1<<10);	//enable acknowledgement bit (ACK)
 	I2C1->CR1 |= (1<<8);	//send start condition
 	while((I2C1->SR1 & (1<<0)) == 0);	//wait until start bit generated
@@ -93,7 +95,7 @@ void i2c1_master_send_start(void)
 /// @param  slave_addr address of the slave to select
 void i2c1_master_tx_slave_addr(uint8_t slave_addr)
 {
-	// LSB must be 0
+	// LSB must be 0 for write operation
 	I2C1->DR = (slave_addr << 1);	//send slave address to SDA line, this step also requied to clear SB
 	while((I2C1->SR1 & (1<<1)) == 0);	//wait until ADDR bit set (sets when @ sent)
 	dump_reg = I2C1->SR1;	//read SR1 reg to clear ADDR bit
@@ -166,6 +168,7 @@ void i2c1_slave_rx_stop(void)
 // ************* I2C SLAVE MODE End **************
 
 volatile uint8_t data = 0;
+
 // main driver code, slave rx mode
 int main(void)
 {
@@ -173,7 +176,6 @@ int main(void)
 	i2c1_config();
 	i2c1_slave_config();
 	i2c1_enable();
-	
 	
 	// i2c1_disable();
 
