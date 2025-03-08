@@ -167,7 +167,7 @@ void i2c1_slave_rx_stop(void)
 
 // ************* I2C SLAVE MODE End **************
 
-volatile uint8_t data = 0;
+volatile uint8_t data = 0;	// store received data
 
 // main driver code, slave rx mode
 int main(void)
