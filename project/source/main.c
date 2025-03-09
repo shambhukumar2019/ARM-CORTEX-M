@@ -37,6 +37,8 @@ void temp_delay(void)
 	}
 }
 
+// ************** Configure GPIO and I2C controls ************
+
 /// @brief configure gpio for i2c1
 /// @param  void
 void i2c1_gpio_config(void)
@@ -78,7 +80,11 @@ void i2c1_disable(void)
 	I2C1->CR1 &= ~(1<<0);	//disable i2c peripheral (clear PE bit)
 }
 
-// ************** I2C MASTER MODE ************
+// ************** Configure GPIO and I2C controls End ************
+
+
+
+// ************** I2C MASTER Transmitter MODE ************
 
 /// @brief transmit start condition to sda line
 /// @param  void
@@ -100,6 +106,8 @@ void i2c1_master_tx_slave_addr(uint8_t slave_addr)
 	while((I2C1->SR1 & (1<<1)) == 0);	//wait until ADDR bit set (sets when @ sent)
 	dump_reg = I2C1->SR1;	//read SR1 reg to clear ADDR bit
 	dump_reg = I2C1->SR2;	//read SR2 reg to clear ADDR bit
+
+	// only for 1st data byte
 	while((I2C1->SR1 & (1<<7)) == 0);	//wait until TxE bit sets, data shift reg empty
 }
 
@@ -107,8 +115,10 @@ void i2c1_master_tx_slave_addr(uint8_t slave_addr)
 /// @param data byte to be transmitted via i2c1
 void i2c1_master_tx_data(uint8_t data)
 {
-	I2C1->DR = data;	//data to send
-	while((I2C1->SR1 & (1<<7)) == 0);	//wait until TxE bit sets, data shift reg empty
+	I2C1->DR = data;	//data to send, clears TxE bit
+
+	// data shift reg not empty
+	while((I2C1->SR1 & (1<<7)) == 0);	//wait until TxE bit sets, data reg empty
 }
 
 /// @brief transmit stop condition to sda line to end communication
@@ -116,9 +126,12 @@ void i2c1_master_tx_data(uint8_t data)
 void i2c1_master_tx_stop(void)
 {
 	while((I2C1->SR1 & (1<<7)) && (I2C1->SR1 & (1<<2)) == 0);	//wait until TxE and BTF bit sets
-	I2C1->CR1 |= (1<<9);
+	I2C1->CR1 |= (1<<9);	// send stop condition
 	while((I2C1->SR2 & (1<<1)) == 0);	//wait until BUSY bit clears, indicates communication terminated
 }
+
+// ************** I2C MASTER Transmitter MODE End ************
+
 
 
 // ************* I2C SLAVE MODE Start **************
