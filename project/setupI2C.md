@@ -4,20 +4,23 @@
 
 
 
-# STEPS TO CONFIGURE STM32F407VGT6 uC I2C PERIPHERAL 
+# $$ STEPS TO CONFIGURE STM32F407VGT6 uC I2C PERIPHERAL 
 
 > **I2C2_SCL** [PB10,47]
+>
 > **I2C2_SDA** [PB11,48]
-
+>
 > **I2C3_SCL** [PA8,67]
+>
 > **I2C3_SDA** [PC9,66]
-
+>
 > **I2C1_SCL** [PB6,92] [PB8,95]
+>
 > **I2C1_SDA** [PB7,93] [PB9,96]
 
 
 
-### Steps to configure GPIO for I2C
+## Steps to configure GPIO for I2C
 
 	1. Configure respective GPIO clock in RCC AHB1ENR.
 	2. set respective GPIO for alternate mode in MODER reg .
@@ -25,10 +28,9 @@
 	4. set open drain on both pins, OTYPER reg.
 	5. set alternate func reg. for I2C,set AFRL to AF4.
 	6. output speed in low speed mode (reset condition), OSPEEDR.
+
 	
-> ***************************************************************************************************
-	
-### Configure I2C Controls
+## Configure I2C Controls
 
 	1. reset then unreset I2C peripheral (SWRST in CR1 reg), so that initially I2C is in known state.
 	2. configure respective I2C peripheral clock in RCC APB1ENR.
@@ -43,11 +45,11 @@
 					= 17 = 0b00010001 = 0x11
 	7. enable I2C peripheral in CR1 reg.
 	
-> ****************************************************************************************
+
 
 # I2C Master Mode
 
-### Start Condition
+## Start Condition
 
 > reset POS bit in CR1. use in master rx mode for more than 2 byte only.
 
@@ -56,9 +58,9 @@
 	3. wait until SB bit in SR1 sets.
 	4. read SR1 reg. to clear SB bit in SR1.
 
-> **********************************************************************************
 
-## $ Transmit Data
+
+## Master Transmit
 
 #### Send slave address
 
@@ -66,13 +68,12 @@
 	2. wait until ADDR bit in SR1 reg. sets.
 			+ slave adress LSB = 0 for master transmitter mode.
 	3. read SR1 and SR2 reg. to clear ADDR bit.
-	4. wait for TxE bit in SR1 reg to set.
 
 
 #### Send data
 
-	1. Now put data in DR reg of I2C.
-	2. wait for TxE bit in SR1 reg to set.
+	1. wait for TxE bit in SR1 reg to set.
+	2. Now put data in DR reg of I2C.
 	3. repeat from step 1 to send multiple bytes.
 
 
@@ -83,9 +84,8 @@
 	3. wait until BUSY bit in SR2 clears, indicates communication terminated.
 
 
-> ***********************************************************************************
 
-## $ Receive Data
+## Master Receive
 
 #### Send slave address
 
@@ -107,45 +107,53 @@
 
 	1. clear ACK bit and set POS bit in CR1.
 	2. read SR1 and SR2 reg.
-	3. Wait until RxNE and BTF = 1 (Data 1 in DR, Data2 in shift register, SCL stretched low until data1 is read).
+	3. Wait until RxNE and BTF sets (Data 1 in DR, Data2 in shift register, SCL stretched low until data1 is read).
 	4. Set STOP bit.
 	5. Read DR two times for data 1 and 2 continously.
 
 
 #### receive more than 2 byte data
 
+	1a. clear ADDR flag by reading SR1 and SR2 reg.
+	1b. wait until RxNE in SR1 sets.
+	1c. read data from DR register.
+	1d. repeat from step 1b till N-3.
 	1a. wait until BTF (byte transfer finish) bit in SR1 sets.
 	1. clear ACK bit.
-	2. read data 3.
+	2. read data N-2.
 	3. wait until BTF sets.
 	4. set STOP bit.
-	5. Read DR two times for data 1 and 2 continously.
-
-
-******************** *I2C Master Mode END* ******************
-
+	5. Read DR two times for data N-1 and N continously.
  
-
+> NOTE: clear POS bit and set ACK bit in CR1 after above things.
 
 
 # I2C Slave Mode
 
-## $ Slave Receiver
+## Slave Initialization
 
-### Slave Rx mode Initialization
+	1. set slave address in OAR1.
+	2. enable ACK bit in CR1 (both before peripheral enable and after that), return ACK if a byte received.
+	3. clear POS bit and set ACK bit in CR1.
+	4. wait until ADDR bit in SR1 reg. sets.
+	5. read SR1 and SR2 reg to clear ADDR bit.
 
-> reset POS bit in CR1. use in master rx mode for more than 2 byte only.
+## Slave Receiver
+	1. wait until RxNE bit in SR1 reg sets.
+	2. read received data from DR .
+	3. wait until STOPF bit in SR1 sets.
+	4. read SR1 reg.
+	5. if ADDR bit in SR1 set, read SR1 then SR2 reg.
+	6. if STOPF bit in SR1 set, read SR1 then write CR1 reg.
 
-	1. enable ACK bit in CR1 (both before peripheral enable and after that), return ACK if a byte received.
-	2. set slave address in OAR1.
-	3. wait until ADDR bit in SR1 reg. sets.
-	4. read SR1 and SR2 reg.
-	5. read received data from DR .
-	6. wait until RxNE bit in SR1 reg sets.
-	7. read SR1 reg.
-	8. wait until STOPF bit in SR1 sets.
-	9. if ADDR bit in SR1 set, read SR1 then SR2 reg.
-	10. if STOPF bit in SR1 set, read SR1 then write CR1 reg.
+## Slave Transmitter
+	1. wait until TxE bit in SR1 sets.
+	2. write data in DR reg.
+	3. if AF is set in SR1 then clear it (write zero).
+	4. wait until STOPF bit in SR1 sets.
+	5. read SR1 reg.
+	6. if ADDR bit in SR1 set, read SR1 then SR2 reg.
+	7. if STOPF bit in SR1 set, read SR1 then write CR1 reg.
 
 
 
