@@ -1,10 +1,4 @@
-# Introduction
-
-> The interface automatically switches from **slave to master**, after it generates a START condition and from **master to slave** if an arbitration loss or a Stop generation occurs, allowing multimaster capability.
-
-
-
-# $$ STEPS TO CONFIGURE STM32F407VGT6 uC I2C PERIPHERAL 
+# STEPS TO CONFIGURE STM32F407VGT6 uC I2C PERIPHERAL 
 
 > **I2C2_SCL** [PB10,47]
 >
@@ -51,9 +45,7 @@
 
 ## Start Condition
 
-> reset POS bit in CR1. use in master rx mode for more than 2 byte only.
-
-	1. enable ACK bit in CR1, return ACK if a byte received.
+	1. enable ACK bit in CR1, return ACK if a byte received and clear POS bit in CR1.
 	2. set start bit in CR1 to generate start condition (generates high to low pulse).
 	3. wait until SB bit in SR1 sets.
 	4. read SR1 reg. to clear SB bit in SR1.
@@ -66,7 +58,7 @@
 
 	1. write slave address to DR reg.
 	2. wait until ADDR bit in SR1 reg. sets.
-			+ slave adress LSB = 0 for master transmitter mode.
+			slave adress LSB = 0 for master transmitter mode.
 	3. read SR1 and SR2 reg. to clear ADDR bit.
 
 
@@ -125,7 +117,7 @@
 	4. set STOP bit.
 	5. Read DR two times for data N-1 and N continously.
  
-> NOTE: clear POS bit and set ACK bit in CR1 after above things.
+> NOTE: *clear POS bit and set ACK bit in CR1 after above things.*
 
 
 # I2C Slave Mode
@@ -133,10 +125,9 @@
 ## Slave Initialization
 
 	1. set slave address in OAR1.
-	2. enable ACK bit in CR1 (both before peripheral enable and after that), return ACK if a byte received.
-	3. clear POS bit and set ACK bit in CR1.
-	4. wait until ADDR bit in SR1 reg. sets.
-	5. read SR1 and SR2 reg to clear ADDR bit.
+	2. clear POS bit and set ACK bit in CR1.
+	3. wait until ADDR bit in SR1 reg. sets.
+	4. read SR1 and SR2 reg to clear ADDR bit.
 
 ## Slave Receiver
 	1. wait until RxNE bit in SR1 reg sets.
@@ -157,3 +148,9 @@
 
 
 
+> NOTE: *Enable I2C perpheral only after all configurations done*
+
+
+# Some Extra Information
+
+> The interface *automatically* switches from **slave to master**, after it generates a START condition and from **master to slave** if an arbitration loss or a Stop generation occurs, allowing multimaster capability.

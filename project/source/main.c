@@ -15,7 +15,6 @@
 
 
 #include <stm32f407xx.h>
-#include <stdio.h>
 
 
 #define	TRUE	1U
@@ -97,7 +96,7 @@ void i2c1_disable(void)
 
 
 
- 					/**************  I2C Master Mode  **************/
+ 					/**************  I2C Master Mode Start **************/
 
 /// @brief transmit start condition to sda line
 /// @param  void
@@ -228,19 +227,23 @@ void i2c1_master_rx_data(uint8_t size, uint8_t *data)
 
 void i2c1_slave_config(void)
 {
-	I2C1->OAR1 |= (1<<4) | (1<<14);	//slave @ = 0x08
+	I2C1->OAR1 |= (1<<4) | (1<<14);	//slave @ = 0x08, SET SLAVE ADDRESS
 	I2C1->CR1 &= ~(1<<11);	//clear POS bit	
+	I2C1->CR1 |= (1<<10);	//enable acknowledgement bit (ACK)
 	
 }
 
 void i2c1_slave_rx_address(void)
 {
-	I2C1->CR1 |= (1<<10);	//enable acknowledgement bit (ACK)
+	
 	while((I2C1->SR1 & (1<<1)) == 0);	//wait until ADDR bit set (sets when @ received)
 	dump_reg = I2C1->SR1;	//read SR1 reg to clear ADDR bit
 	dump_reg = I2C1->SR2;	//read SR2 reg to clear ADDR bit
 
 }
+
+
+					/************* I2C SLAVE Receiver MODE Start **************/
 
 uint8_t i2c1_slave_rx_data(void)
 {
@@ -252,10 +255,27 @@ uint8_t i2c1_slave_rx_data(void)
 	return data;
 }
 
-void i2c1_slave_rx_stop(void)
+
+
+					/************* I2C SLAVE Transmitter MODE Start **************/
+
+void i2c1_slave_tx_data(uint8_t data)
 {
-	dump_reg = I2C1->SR1;	//read SR1 reg
+	while((I2C1->SR1 & (1<<7)) == 0);	// wait until TxE in SR1 reg sets
+	I2C1->DR = data;
+}
+
+
+void i2c1_slave_stop(void)
+{
+	if ((I2C1->SR1 & (1<<10)) == 1)
+	{
+		I2C1->SR1 &= ~(1<<10);	// clear AF (acknowledge failure) bit
+	}
+
 	while((I2C1->SR1 & (1<<4)) == 0);	//wait until STOPF bit sets
+	dump_reg = I2C1->SR1;	//read SR1 reg
+	
 	if((I2C1->SR1 & (1<<1)) == 1)
 	{
 		dump_reg = I2C1->SR1;	//read SR1 reg to clear ADDR bit
@@ -269,18 +289,17 @@ void i2c1_slave_rx_stop(void)
 }
 
 
-// global variable
+
+// main driver code
+
 volatile uint8_t data = 0;	// store received data
 
-// main driver code, slave rx mode
 int main(void)
 {
 	i2c1_gpio_config();
 	i2c1_config();
 	i2c1_slave_config();
 	i2c1_enable();
-	
-	// i2c1_disable();
 
 	//eternal loop
 	for(;;)
