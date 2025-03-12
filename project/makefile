@@ -26,14 +26,14 @@ OBJECTS := build_files/startup_stm32f407vgtx.o $(C_OBJECTS)
 
 build_files/main.elf: $(OBJECTS)
 	@echo 'compile and link $^'
-	@arm-none-eabi-gcc -Wall -Wextra -mcpu=cortex-m4 -Og -g -T"STM32F407VGTX_FLASH.ld" -Wl,--print-memory-usage --specs=nosys.specs -Wl,-Map="build_files/main.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group -o $@ $^
+	@arm-none-eabi-gcc -Wall -Wextra --specs=nosys.specs --specs=nano.specs -mcpu=cortex-m4 -Og -g -T"STM32F407VGTX_FLASH.ld"  -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb  -Wl,--print-memory-usage -Wl,-Map="build_files/main.map" -Wl,--gc-sections -o $@ $^
 
 build_files/startup_stm32f407vgtx.o: startup_stm32f407vgtx.s
-	@arm-none-eabi-gcc -Wall -Wextra -mcpu=cortex-m4 -Og -g --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -c $< -o $@
+	@arm-none-eabi-gcc -Wall -Wextra -mcpu=cortex-m4 -Og -g -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -ffunction-sections -fdata-sections -c $< -o $@
 	
 
 build_files/%.o: source/%.c
-	@arm-none-eabi-gcc -Wall -Wextra -mcpu=cortex-m4 -Og -g --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Iinclude -c $< -o $@
+	@arm-none-eabi-gcc -Wall -Wextra -mcpu=cortex-m4 -Og -g -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Iinclude -ffunction-sections -fdata-sections -c $< -o $@
 
 # get size of elf file
 size: 
