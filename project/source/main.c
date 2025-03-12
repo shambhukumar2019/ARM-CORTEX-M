@@ -23,6 +23,9 @@
 #define	READ	TRUE
 #define	WRITE	FALSE
 
+#define	TX		FALSE
+#define	RX		TRUE
+
 /*
 #if !defined(__SOFT_FP__) && defined(__ARM_FP)
   #warning "FPU is not initialized, but the project is compiling for an FPU. Please initialize the FPU before use."
@@ -115,7 +118,7 @@ void i2c1_master_send_start(void)
 void i2c1_master_tx_slave_addr(uint8_t slave_addr, uint8_t rw_bit)
 {
 	// LSB must be 0 for write operation and 1 for read
-	I2C1->DR = (slave_addr << 1) | rw_bit;	//send slave address to SDA line, this step also requied to clear SB
+	I2C1->DR = ((slave_addr << 1) | rw_bit);	//send slave address to SDA line, this step also requied to clear SB
 
 	while((I2C1->SR1 & (1<<1)) == 0);		//wait until ADDR bit set (sets when @ sent)
 	if(rw_bit == WRITE)
@@ -218,7 +221,8 @@ void i2c1_master_rx_data(uint8_t size, uint8_t *data)
 
 		I2C1->CR1 |= (1<<10);	// set ACK bit
 	}
-	
+
+	while((I2C1->SR2 & (1<<1)) == 0);	//wait until BUSY bit clears, indicates communication terminated
 }
 
 
@@ -268,7 +272,7 @@ void i2c1_slave_tx_data(uint8_t data)
 
 void i2c1_slave_stop(void)
 {
-	if ((I2C1->SR1 & (1<<10)) == 1)
+	if (((I2C1->SR1) & (1<<10)) == 1UL)
 	{
 		I2C1->SR1 &= ~(1<<10);	// clear AF (acknowledge failure) bit
 	}
@@ -276,37 +280,71 @@ void i2c1_slave_stop(void)
 	while((I2C1->SR1 & (1<<4)) == 0);	//wait until STOPF bit sets
 	dump_reg = I2C1->SR1;	//read SR1 reg
 	
-	if((I2C1->SR1 & (1<<1)) == 1)
+	if((I2C1->SR1 & (1<<1)) == 1UL)
 	{
 		dump_reg = I2C1->SR1;	//read SR1 reg to clear ADDR bit
 		dump_reg = I2C1->SR2;	//read SR2 reg to clear ADDR bit
 	}
-	if((I2C1->SR1 & (1<<4)) == 1)
+	if((I2C1->SR1 & (1<<4)) == 1UL)
 	{
 		dump_reg = I2C1->SR1;	//read SR1 to clear STOPF bit
 		I2C1->CR1 = 0;	//write CR1 to clear STOPF bit
 	}
+
+	while((I2C1->SR2 & (1<<1)) == 0);	//wait until BUSY bit clears, indicates communication terminated
 }
 
 
+void i2c1_master_transmit(uint8_t slave_addr, uint8_t len, uint8_t *buf)
+{
+	volatile uint8_t i = 0;
 
-// main driver code
+	i2c1_master_send_start();
+	i2c1_master_tx_slave_addr(slave_addr, WRITE);
 
-volatile uint8_t data = 0;	// store received data
+	for(i=0;i<len;i++)
+	{
+		i2c1_master_tx_data(buf[i]);
+	}
+	i2c1_master_tx_stop();
+}
+
+void i2c1_master_receive(uint8_t slave_addr, uint8_t len, uint8_t *buf)
+{
+	i2c1_master_send_start();
+	i2c1_master_tx_slave_addr(slave_addr, READ);
+	i2c1_master_rx_data(len,buf);
+}
+
+void i2c1_master(uint8_t tx_rx_mode, uint8_t slave_add, uint8_t len, uint8_t *buf)
+{
+	if(tx_rx_mode == TX)
+	{
+		i2c1_master_transmit(slave_add,len,buf);
+	}
+	else if (tx_rx_mode == RX)
+	{
+		i2c1_master_receive(slave_add,len,buf);
+	}
+}
+
+							/***************  main driver code  ****************/
+
+volatile uint8_t byte[8] = {0};	// store received data
 
 int main(void)
 {
 	i2c1_gpio_config();
 	i2c1_config();
-	i2c1_slave_config();
 	i2c1_enable();
 
-	//eternal loop
+	//infinte loop
 	for(;;)
 	{
-		i2c1_slave_rx_address();
-		data = i2c1_slave_rx_data();
-		i2c1_slave_rx_stop();
+		i2c1_master(RX,8,7,byte);
+		i2c1_master(TX,8,7,byte);
+		
+		temp_delay();
 	}
 
 	return 0;
