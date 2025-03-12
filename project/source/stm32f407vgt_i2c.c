@@ -1,12 +1,24 @@
-
+/**
+ * @file stm32f407vgt_i2c.c
+ * @author shambhu kumar
+ * @brief stm32f407vgtx I2C device driver source code
+ * @version 0.1
+ * @date 2025-03-12
+ * 
+ * @copyright Copyright (c) 2025
+ * 
+ */
 #include "stm32f407vgt_i2c.h"
 
-
+// store garbage values
 static volatile uint16_t dump_reg = 0;
 
  					/************** Configure GPIO and I2C controls ************/
 
-
+/**
+ * @brief confugure gpio settings for I2C1
+ * 
+ */
 void i2c1_gpio_config(void)
 {
 	RCC->AHB1ENR |= (1<<1);	//enable GPIOB clk
@@ -18,8 +30,10 @@ void i2c1_gpio_config(void)
 }
 
 
-/// @brief configure i2c1 peripheral settings
-/// @param  void
+/**
+ * @brief configure I2C1 control and clock settings
+ * 
+ */
 void i2c1_config(void)
 {
 	I2C1->CR1 |= (1<<15);		//i2c under software reset
@@ -35,16 +49,20 @@ void i2c1_config(void)
 }
 
 
-/// @brief enable i2c1 peripheral
-/// @param  void
+/**
+ * @brief enable I2C1 peripheral
+ * 
+ */
 void i2c1_enable(void)
 {
 	I2C1->CR1 |= (1<<0);	//enable i2c peripheral (set PE bit)
 }
 
 
-/// @brief disable i2c1 peripheral
-/// @param  void
+/**
+ * @brief disable I2C1 peripheral
+ * 
+ */
 void i2c1_disable(void)
 {
 	I2C1->CR1 &= ~(1<<0);	//disable i2c peripheral (clear PE bit)
@@ -55,8 +73,10 @@ void i2c1_disable(void)
 
  					/**************  I2C Master Mode Start **************/
 
-/// @brief transmit start condition to sda line
-/// @param  void
+/**
+ * @brief master send start bit to slave
+ * 
+ */
 void i2c1_master_send_start(void)
 {
 	I2C1->CR1 &= ~(1<<11);	// clear POS bit
@@ -67,8 +87,12 @@ void i2c1_master_send_start(void)
 }
 
 
-/// @brief transmit slave address @ to for i2c connection with it
-/// @param  slave_addr address of the slave to select
+/**
+ * @brief master send slave address in read/write mode
+ * 
+ * @param slave_addr slave address to connect
+ * @param rw_bit master READ or WRITE mode
+ */
 void i2c1_master_tx_slave_addr(uint8_t slave_addr, uint8_t rw_bit)
 {
 	// LSB must be 0 for write operation and 1 for read
@@ -87,8 +111,11 @@ void i2c1_master_tx_slave_addr(uint8_t slave_addr, uint8_t rw_bit)
 
  						/************** I2C MASTER Transmitter MODE ************/
 
-/// @brief transmit byte size data to sda line
-/// @param data byte to be transmitted via i2c1
+/**
+ * @brief master send byte to slave
+ * 
+ * @param data byte to be sent
+ */
 void i2c1_master_tx_data(uint8_t data)
 {
 	// data shift reg not empty
@@ -100,8 +127,10 @@ void i2c1_master_tx_data(uint8_t data)
 }
 
 
-/// @brief transmit stop condition to sda line to end communication
-/// @param  void
+/**
+ * @brief master transmitter stop the communication with slave
+ * 
+ */
 void i2c1_master_tx_stop(void)
 {
 	while(((I2C1->SR1 & (1<<7)) && (I2C1->SR1 & (1<<2))) == 0);	//wait until TxE and BTF bit sets
@@ -115,6 +144,12 @@ void i2c1_master_tx_stop(void)
 
  						/************** I2C Master Receiver Mode Start **************/
 
+/**
+ * @brief master receive data of given size from slave
+ * 
+ * @param size no of bytes to receive
+ * @param data[] store received bytes in this array
+ */
 void i2c1_master_rx_data(uint8_t size, uint8_t *data)
 {
 	volatile uint8_t i = 0;
@@ -183,14 +218,22 @@ void i2c1_master_rx_data(uint8_t size, uint8_t *data)
 
  									/************* I2C SLAVE MODE Start **************/
 
-void i2c1_slave_config(void)
+/**
+ * @brief configure I2C1 as slave and set slave address 
+ * 
+ * @param addr address of slave
+ */
+void i2c1_slave_config(uint8_t addr)
 {
-	I2C1->OAR1 |= (1<<4) | (1<<14);	//slave @ = 0x08, SET SLAVE ADDRESS
+	I2C1->OAR1 = ((addr << 1) | (1<<14));	//slave @ = 0x08, SET SLAVE ADDRESS
 	I2C1->CR1 &= ~(1<<11);	//clear POS bit	
 	I2C1->CR1 |= (1<<10);	//enable acknowledgement bit (ACK)
-	
 }
 
+/**
+ * @brief match the received slave address from master
+ * 
+ */
 void i2c1_slave_rx_address(void)
 {
 	
@@ -203,6 +246,11 @@ void i2c1_slave_rx_address(void)
 
 					/************* I2C SLAVE Receiver MODE Start **************/
 
+/**
+ * @brief read the received data byte from master
+ * 
+ * @return uint8_t received byte
+ */
 uint8_t i2c1_slave_rx_data(void)
 {
 	volatile uint8_t data = 0;
@@ -217,6 +265,11 @@ uint8_t i2c1_slave_rx_data(void)
 
 					/************* I2C SLAVE Transmitter MODE Start **************/
 
+/**
+ * @brief send a byte to master
+ * 
+ * @param data byte to be sent
+ */
 void i2c1_slave_tx_data(uint8_t data)
 {
 	while((I2C1->SR1 & (1<<7)) == 0);	// wait until TxE in SR1 reg sets
@@ -224,6 +277,13 @@ void i2c1_slave_tx_data(uint8_t data)
 }
 
 
+/**
+ * @brief stop slave from communicating with master
+ * 
+ *      master sends stop bit which is detected by the slave 
+ *      then it ends the connection
+ * 
+ */
 void i2c1_slave_stop(void)
 {
 	if (((I2C1->SR1) & (1<<10)) == 1UL)
@@ -248,7 +308,13 @@ void i2c1_slave_stop(void)
 	while((I2C1->SR2 & (1<<1)) == 0);	//wait until BUSY bit clears, indicates communication terminated
 }
 
-
+/**
+ * @brief master send chunk of bytes to slave
+ * 
+ * @param slave_addr address of the slave to connect
+ * @param len no of bytes to send
+ * @param buf[] buffer from which bytes would be sent
+ */
 void i2c1_master_transmit(uint8_t slave_addr, uint8_t len, uint8_t *buf)
 {
 	volatile uint8_t i = 0;
@@ -263,6 +329,13 @@ void i2c1_master_transmit(uint8_t slave_addr, uint8_t len, uint8_t *buf)
 	i2c1_master_tx_stop();
 }
 
+/**
+ * @brief master receive data from slave
+ * 
+ * @param slave_addr slave address from which data to be received
+ * @param len no of bytes to receive
+ * @param buf buffer in which to store received bytes
+ */
 void i2c1_master_receive(uint8_t slave_addr, uint8_t len, uint8_t *buf)
 {
 	i2c1_master_send_start();
@@ -270,6 +343,16 @@ void i2c1_master_receive(uint8_t slave_addr, uint8_t len, uint8_t *buf)
 	i2c1_master_rx_data(len,buf);
 }
 
+/**
+ * @brief I2C master rx/tx bytes to slave
+ * 
+ * 		wrapper function for master rx/tx mode
+ * 
+ * @param tx_rx_mode set TX or RX mode 
+ * @param slave_add slave address
+ * @param len no of bytes to rx/tx
+ * @param buf buffer of bytes
+ */
 void i2c1_master(uint8_t tx_rx_mode, uint8_t slave_add, uint8_t len, uint8_t *buf)
 {
 	if(tx_rx_mode == TX)
