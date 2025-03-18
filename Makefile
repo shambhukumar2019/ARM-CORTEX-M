@@ -13,7 +13,8 @@ bin: startup.s
 	$(CC_PREFIX)-readelf -a $(TARGET).elf > $(TARGET).debug
 	$(CC_PREFIX)-objcopy -O binary $(TARGET).elf $(TARGET).bin
 	
-
+# -S = stop cpu at starting
+# feed elf as kernel file
 emulate: bin
 	$(QEMU_SYS) -S -M $(BOARD) -cpu $(CPU) -nographic -kernel $(TARGET).elf -gdb tcp::1234
 
