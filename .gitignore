@@ -1,1 +1,6 @@
-*.elf *.o *.map *.lst *.debug
+*.elf
+*.o 
+*.map 
+*.lst 
+*.debug
+*.bin

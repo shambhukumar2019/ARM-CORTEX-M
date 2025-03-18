@@ -19,4 +19,4 @@ gdb:
 
 
 clean:
-	rm -rf *.elf *.o *.map *.lst *.debug
+	rm -rf *.elf *.o *.map *.lst *.debug *.bin
