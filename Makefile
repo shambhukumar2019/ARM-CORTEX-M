@@ -5,9 +5,11 @@ CPU ?= cortex-m3
 CC_PREFIX = arm-none-eabi
 QEMU_SYS = qemu-system-arm
 
+SRC = startup.S
 
-bin: startup.s
-	$(CC_PREFIX)-as -mcpu=$(CPU) -mthumb -g --gstabs+ -c $^ -o $(TARGET).o
+
+bin: 
+	$(CC_PREFIX)-as -mcpu=$(CPU) -mthumb -g --gstabs+ -c $(SRC) -o $(TARGET).o
 	$(CC_PREFIX)-ld -Tlinker.ld -Map=startup.map $(TARGET).o -o $(TARGET).elf
 	$(CC_PREFIX)-objdump -D -S $(TARGET).elf > $(TARGET).lst
 	$(CC_PREFIX)-readelf -a $(TARGET).elf > $(TARGET).debug
