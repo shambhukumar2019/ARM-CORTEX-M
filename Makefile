@@ -2,10 +2,11 @@ TARGET ?= startup
 BOARD ?= stm32vldiscovery
 CPU ?= cortex-m3
 
-CC_PREFIX = arm-none-eabi
-QEMU_SYS = qemu-system-arm
+CC_PREFIX ?= arm-none-eabi
+QEMU_SYS ?= qemu-system-arm
 
-SRC = startup.S
+# ?= means assign value only if previously not done
+SRC ?= startup.S
 
 
 bin: 
