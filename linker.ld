@@ -18,6 +18,11 @@ SECTIONS
 
     .data : /* rwx allowed */
     {
-        *(.data*)
+        sstack1 = .;
+        *(.data.stack1)
+        sstack2 = .;
+        *(.data.stack2)
+        sstack3 = .;
+        *(.data.stack3)
     } > SRAM
 }
