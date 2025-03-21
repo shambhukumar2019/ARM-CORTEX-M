@@ -91,8 +91,11 @@ break_pnt:
     mov r11, r3
     pop {r6-r7}
 
-    mrs r0, lr
-    msr pc, r0
+    mrs r0, msp
+    add r0, r0, #20
+    ldr r1, [r0]
+    add r0, r0, #4
+    str r1, [r0]
 
     @ LR is set to a special value (0xFFFFFFF9), tells the cpu that this is an exception return
     bx lr
