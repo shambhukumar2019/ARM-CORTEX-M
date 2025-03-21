@@ -75,12 +75,11 @@ load_sp:
     add r4, r4, #4
     b break_pnt
 
+# initiallize r4 again for next cycles 
 init_sp:
     ldr r4, =stacks
     mov r5, #4
     b load_sp
-    
-# read sp after returning from task1 and with offset to pc write the desired @ there
 
 break_pnt:
 
@@ -91,6 +90,7 @@ break_pnt:
     mov r11, r3
     pop {r6-r7}
 
+# read sp after returning from task1 and with offset to pc write the desired @ there
     mrs r0, msp
     add r0, r0, #20
     ldr r1, [r0]
