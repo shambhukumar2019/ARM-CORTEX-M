@@ -80,6 +80,7 @@ init_sp:
     mov r5, #4
     b load_sp
     
+# read sp after returning from task1 and with offset to pc write the desired @ there
 
 break_pnt:
 
@@ -89,6 +90,9 @@ break_pnt:
     mov r10, r2
     mov r11, r3
     pop {r6-r7}
+
+    mrs r0, lr
+    msr pc, r0
 
     @ LR is set to a special value (0xFFFFFFF9), tells the cpu that this is an exception return
     bx lr
@@ -146,7 +150,7 @@ stack1:
     .word 0x12
     .word 0x13
     .word 0x1c
-    .word 0x309
+    .word task1
     .word task1
     .word 0x01000000
     .zero 16
@@ -168,7 +172,7 @@ stack2:
     .word 0x22
     .word 0x23
     .word 0x2c
-    .word 0x309
+    .word task2
     .word task2
     .word 0x01000000
     .zero 16
@@ -191,7 +195,7 @@ stack3:
     .word 0x32
     .word 0x33
     .word 0x3c
-    .word 0x309
+    .word task3
     .word task3
     .word 0x01000000
     .zero 16
