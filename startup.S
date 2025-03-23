@@ -103,37 +103,6 @@ break_pnt:
 
 
 
-# TASK 1
-.section .text
-.align  2
-.type   task1, %function
-task1:
-
-    add r0,r0, #1
-
-    b .
-
-
-# TASK 2
-.section .text
-.align  2
-.type   task2, %function
-task2:
-
-    add r1,r1, #2
-
-    b .
-
-
-# TASK 3
-.section .text
-.align  2
-.type   task3, %function
-task3:
-
-    add r2,r2, #3
-
-    b .
 
 
 /*      *********** STACK START  ***********     */

@@ -6,12 +6,12 @@ CC_PREFIX ?= arm-none-eabi
 QEMU_ARM ?= qemu-system-arm
 
 # ?= means assign value only if previously not done
-SRC ?= startup.S
+SRC ?= main1.c main2.c main3.c startup.S
 
 
 bin: 
-	$(CC_PREFIX)-as --warn -mcpu=$(CPU) -mthumb -g -c $(SRC) -o $(TARGET).o
-	$(CC_PREFIX)-ld -Tlinker.ld -Map=startup.map $(TARGET).o -o $(TARGET).elf
+	$(CC_PREFIX)-gcc -Wall -mcpu=$(CPU) -Tlinker.ld -Wl,-Map=main.map -mthumb -g -nostartfiles $(SRC) -o $(TARGET).elf
+	
 	$(CC_PREFIX)-objdump -D -S $(TARGET).elf > $(TARGET).lst
 	$(CC_PREFIX)-readelf -a $(TARGET).elf > $(TARGET).debug
 	$(CC_PREFIX)-objcopy -O binary $(TARGET).elf $(TARGET).bin
