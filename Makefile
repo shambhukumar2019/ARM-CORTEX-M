@@ -27,4 +27,4 @@ gdb:
 
 
 clean:
-	rm -rf *.elf *.o *.map *.lst *.debug *.bin
+	rm -rf *.elf *.o *.map *.lst *.debug *.bin .gdb_history
