@@ -19,9 +19,10 @@
 
 # exception vector table
 .section .isr_vector
+.align 2
 vector_list:
 
-    .word   0x20000800      @ $sp = 0x20000800
+    .word   0x20001000      @ $sp = 0x20001000
     .word   reset_handler
 
 .org 0x0000003C
@@ -30,7 +31,7 @@ vector_list:
 
 
 # reset exception handler function
-.section .text.reset_handler
+.section .text
 .align  2
 .type   reset_handler, %function
 reset_handler:
@@ -54,7 +55,7 @@ reset_handler:
 
 
 # systick exception handler function
-.section .text.systick_handler
+.section .text
 .align  2
 .type   systick_handler, %function
 systick_handler:
@@ -78,7 +79,7 @@ load_sp:
 # initiallize r4 again for next cycles 
 init_sp:
     ldr r4, =stacks
-    mov r5, #4
+    mov r5, #3
     b load_sp
 
 break_pnt:
@@ -103,7 +104,7 @@ break_pnt:
 
 
 # TASK 1
-.section .text.task1
+.section .text
 .align  2
 .type   task1, %function
 task1:
@@ -114,7 +115,7 @@ task1:
 
 
 # TASK 2
-.section .text.task2
+.section .text
 .align  2
 .type   task2, %function
 task2:
@@ -125,7 +126,7 @@ task2:
 
 
 # TASK 3
-.section .text.task3
+.section .text
 .align  2
 .type   task3, %function
 task3:
