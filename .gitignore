@@ -4,3 +4,4 @@
 *.lst 
 *.debug
 *.bin
+.gdb_history
