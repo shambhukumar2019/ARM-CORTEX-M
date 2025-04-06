@@ -1,4 +1,6 @@
-void task1(void)
+int task1(void)
 {
     while(1);
+
+    return 0;
 }

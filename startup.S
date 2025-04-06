@@ -11,10 +11,12 @@
 .global stack2
 .global stack3
 
-@ .equ SYSTICK_CSR,   0xE000E010
-@ .equ SYSTICK_RVR,   0xE000E014
-@ .equ SYSTICK_CVR,   0xE000E018
-@ .equ SYSTICK_CALIB, 0xE000E01C @read only
+
+.equ SYSTICK_CSR,   0xE000E010
+.equ SYSTICK_RVR,   0xE000E014
+.equ SYSTICK_CVR,   0xE000E018
+.equ SYSTICK_CALIB, 0xE000E01C @read only
+.equ TIMEOUT,       0x0000FFFF
 
 
 # exception vector table
@@ -29,29 +31,6 @@ vector_list:
     .word   systick_handler
     .zero   16
 
-
-# reset exception handler function
-.section .text
-.align  2
-.type   reset_handler, %function
-reset_handler:
-
-    @ mov only works for data upto 255
-    ldr r0, =0xE000E010 @ SYSTICK_CSR
-    ldr r1, =0xE000E014 @ SYSTICK_RVR
-    ldr r2, =0xE000E018 @ SYSTICK_CVR
-    ldr r3, =0x00ffffff @ timeout
-
-    str r3, [r1] @ set timeout in RVR reg.
-    mov r3, #0
-    str r3, [r2] @ set initial tick value in CVR reg.
-    mov r3, #7
-    str r3, [r0] @ enable systick time in CSR reg.
-
-    ldr r4, =stacks
-    mov r5, #4
-
-    b .
 
 
 # systick exception handler function
