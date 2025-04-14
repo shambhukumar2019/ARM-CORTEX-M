@@ -26,7 +26,7 @@ OBJECTS := build_files/startup_stm32f407vgtx.o $(C_OBJECTS)
 
 build_files/main.elf: $(OBJECTS)
 	@echo 'compile and link $^'
-	@arm-none-eabi-gcc -Wall -Wextra --specs=nosys.specs --specs=nano.specs -mcpu=cortex-m4 -Og -g -T"STM32F407VGTX_FLASH.ld"  -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb  -Wl,--print-memory-usage -Wl,-Map="build_files/main.map" -Wl,--gc-sections -o $@ $^
+	@arm-none-eabi-gcc -Wall -Wextra --specs=nosys.specs --specs=nano.specs -nostdlib -nostartfiles -mcpu=cortex-m4 -Og -g -T"STM32F407VGTX_FLASH.ld"  -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb  -Wl,--print-memory-usage -Wl,-Map="build_files/main.map" -Wl,--gc-sections -o $@ $^
 
 build_files/startup_stm32f407vgtx.o: startup_stm32f407vgtx.s
 	@arm-none-eabi-gcc -Wall -Wextra -mcpu=cortex-m4 -Og -g -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -ffunction-sections -fdata-sections -c $< -o $@
