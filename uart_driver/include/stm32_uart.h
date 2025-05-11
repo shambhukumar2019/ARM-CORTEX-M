@@ -26,14 +26,14 @@
 #define PARITY_BIT      DISABLE
 
 
-typedef struct rs232
+typedef struct uart_object
 {
     char rx_buf[MAX_BUF_SIZE + 1];
     char tx_buf[MAX_BUF_SIZE + 1];
     uint8_t rx_buf_char_num;
     uint8_t tx_buf_char_num;
 
-}rs232_obj;
+}uart_t;
 
 
 
