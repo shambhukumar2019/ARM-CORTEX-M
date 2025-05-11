@@ -1,8 +1,7 @@
-## This branch is for practice of cortex-m3 on qemu emulator.
+# $ Simple Round Robin RTOS Project
 
 
-*$* Implemented a basic schedular to switch between three tasks depending on systick interrupt.
-> Thanks to **Piyush Itankar** Sir and his great **Team** at [Pyjamabrah](https://pyjamabrah.com/) and [Embedded Systems, inPyjama](https://inpyjama.com/),  for providing great lectures on ARM Cortex-M
+*$* Implement a basic schedular to switch between three tasks based on a time interval.
 
 
 ## Basic Concepts
@@ -14,3 +13,4 @@ This attribute tells the compiler that the function is an embedded assembly func
 The compiler does not generate prologue and epilogue sequences for functions with __ attribute __((naked)).
 
 The compiler only supports basic __asm statements in __ attribute __((naked)) functions. Using extended assembly, parameter references or mixing C code with __asm statements might not work reliably.
+
