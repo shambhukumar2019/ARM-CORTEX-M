@@ -1,163 +1,119 @@
+/*
+    Unified syntax simplifies writing assembly code 
+    that can switch between ARM and Thumb states 
+    without changing the syntax
+*/
 .syntax unified
 .thumb
 
-# these variable have global access
+# make global access for symbols
 .global reset_handler
+.global nmi_handler
+.global hardfault_handler
+.global memmanage_handler
+.global busfault_handler
+.global usagefault_handler
+.global svc_handler
+.global debug_monitor_handler
+.global pendsv_handler
 .global systick_handler
-.global task1
-.global task2
-.global task3
-.global stack1
-.global stack2
-.global stack3
+.global default_handler
 
 
-.equ SYSTICK_CSR,   0xE000E010
-.equ SYSTICK_RVR,   0xE000E014
-.equ SYSTICK_CVR,   0xE000E018
-.equ SYSTICK_CALIB, 0xE000E01C @read only
-.equ TIMEOUT,       0x0000FFFF
+.global _min_stack_size
+.global _estack
+.global _etext
+.global _stext
+.global _sdata
+.global _edata
+.global _sbss
+.global _ebss
 
 
-# exception vector table
-.section .isr_vector
+# place address of all these labels in memory consecutively
+.word _min_stack_size
+.word _estack
+.word _etext
+.word _stext
+.word _sdata
+.word _edata
+.word _sbss
+.word _ebss
+
+
+/* 
+    exception vector table
+    progbits indicates this section contains
+    executable code and initiallized data
+*/
+.section .isr_vector, "a", %progbits
 .align 2
 vector_list:
 
-    .word   0x20001000      @ $sp = 0x20001000
-    .word   reset_handler
+    .word   _estack                    // $sp = 0x20000400
+    .word   reset_handler              // Reset_Handler
+    .word   nmi_handler                // NMI Handler
+    .word   hardfault_handler          // Hard Fault Handler
+    .word   memmanage_handler          // MPU Fault Handler
+    .word   busfault_handler           // Bus Fault Handler
+    .word   usagefault_handler         // Usage Fault Handler
+    .word   0                          // Reserved
+    .word   0                          // Reserved
+    .word   0                          // Reserved
+    .word   0                          // Reserved
+    .word   svc_handler                // SVCall Handler
+    .word   debug_monitor_handler      // Debug Monitor Handler
+    .word   0                          // Reserved
+    .word   pendsv_handler             // PendSV Handler
+    .word   systick_handler            // SysTick Handler
 
-.org 0x0000003C
-    .word   systick_handler
-    .zero   16
-
-
-
-# systick exception handler function
-.section .text
-.align  2
-.type   systick_handler, %function
-systick_handler:
-
-    push {r6-r7}
-    mov r0, r8
-    mov r1, r9
-    mov r2, r10
-    mov r3, r11
-    push {r0-r3}
-
-    sub r5, r5, #1
-    cmp r5, #0
-    beq init_sp
- 
-load_sp:
-    ldr sp, [r4]
-    add r4, r4, #4
-    b break_pnt
-
-# initiallize r4 again for next cycles 
-init_sp:
-    ldr r4, =stacks
-    mov r5, #3
-    b load_sp
-
-break_pnt:
-
-    pop {r0-r3}
-    mov r8, r0
-    mov r9, r1
-    mov r10, r2
-    mov r11, r3
-    pop {r6-r7}
-
-# read sp after returning from task1 and with offset to pc write the desired @ there
-    mrs r0, msp
-    add r0, r0, #20
-    ldr r1, [r0]
-    add r0, r0, #4
-    str r1, [r0]
-
-    @ LR is set to a special value (0xFFFFFFF9), tells the cpu that this is an exception return
-    bx lr
+.size vector_list, . - vector_list  /* size of vector table */
 
 
 
-
-
-/*      *********** STACK START  ***********     */
-
-# STACK 1
-.section .data.stack1
-.align  2
-stack1:
-
-    .word 0x18
-    .word 0x19
-    .word 0x1a
-    .word 0x1b
-    .word 0x16
-    .word 0x17
-    .word 0x10
-    .word 0x11
-    .word 0x12
-    .word 0x13
-    .word 0x1c
-    .word task1
-    .word task1
-    .word 0x01000000
-    .zero 16
-
-
-# STACK 2
-.section .data.stack2
-.align  2
-stack2:
-
-    .word 0x28
-    .word 0x29
-    .word 0x2a
-    .word 0x2b
-    .word 0x26
-    .word 0x27
-    .word 0x20
-    .word 0x21
-    .word 0x22
-    .word 0x23
-    .word 0x2c
-    .word task2
-    .word task2
-    .word 0x01000000
-    .zero 16
-
-
-
-# STACK 3
-.section .data.stack3
-.align  2
-stack3:
-
-    .word 0x38
-    .word 0x39
-    .word 0x3a
-    .word 0x3b
-    .word 0x36
-    .word 0x37
-    .word 0x30
-    .word 0x31
-    .word 0x32
-    .word 0x33
-    .word 0x3c
-    .word task3
-    .word task3
-    .word 0x01000000
-    .zero 16
-
-
-# save stacks starting address
-.section .data
+.section .text.reset_handler
+.type reset_handler, %function
 .align 2
-stacks: 
-    .word sstack1
-    .word sstack2
-    .word sstack3
+reset_handler:
+    ldr sp, =_estack; # set stack pointer
+
+
+
+.section .text.default_handler
+.type default_handler, %function
+.align 2
+default_handler:
+    b .
+
+
+
+# make all exception handlers as "weak" function except reset_handler
+# also "alias" them to default_handler
+.weak nmi_handler
+.thumb_set default_handler, nmi_handler
+
+.weak hardfault_handler
+.thumb_set default_handler, hardfault_handler
+
+.weak memmanage_handler
+.thumb_set default_handler, memmanage_handler
+
+.weak busfault_handler
+.thumb_set default_handler, busfault_handler
+
+.weak usagefault_handler
+.thumb_set default_handler, usagefault_handler
+
+.weak svc_handler
+.thumb_set default_handler, svc_handler
+
+.weak debug_monitor_handler
+.thumb_set default_handler, debug_monitor_handler
+
+.weak pendsv_handler
+.thumb_set default_handler, pendsv_handler
+
+.weak systick_handler
+.thumb_set default_handler, systick_handler
+
 

@@ -1,4 +1,4 @@
-TARGET ?= startup
+TARGET ?= app
 BOARD ?= stm32vldiscovery
 CPU ?= cortex-m3
 
@@ -6,7 +6,7 @@ CC_PREFIX ?= arm-none-eabi
 QEMU_ARM ?= qemu-system-arm
 
 # ?= means assign value only if previously not done
-SRC ?= main1.c main2.c main3.c startup.S exception_handler.c
+SRC ?= task1.c task2.c startup.S exception_handler.c
 INC ?= stm32f407vg_disc1board
 
 

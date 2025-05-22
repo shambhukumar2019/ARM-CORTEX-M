@@ -27,5 +27,14 @@
 #define TIMEOUT       0x0000FFFFU
 
 
+extern _ATTR((naked)) _VO void systick_handler(void);
+extern _ATTR((naked)) _VO void pendsv_handler(void);
+extern _ATTR((naked)) _VO void svc_handler(void);
+
+
+
+
+
+
 
 #endif
