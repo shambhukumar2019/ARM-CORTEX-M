@@ -6,7 +6,7 @@ CC_PREFIX ?= arm-none-eabi
 QEMU_ARM ?= qemu-system-arm
 
 # ?= means assign value only if previously not done
-SRC ?= task1.c task2.c startup.S exception_handler.c
+SRC ?= task1.c task2.c startup.S exception_handler.c main.c
 INC ?= stm32f407vg_disc1board
 
 

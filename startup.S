@@ -35,8 +35,9 @@
 .word _estack
 .word _etext
 .word _stext
-.word _sdata
+.word _sdata    // executable addr of .data section
 .word _edata
+.word _sidata   // load addr of .data section
 .word _sbss
 .word _ebss
 
@@ -71,11 +72,12 @@ vector_list:
 
 
 
-.section .text.reset_handler
-.type reset_handler, %function
-.align 2
-reset_handler:
-    ldr sp, =_estack; # set stack pointer
+@ .section .text.reset_handler
+@ .type reset_handler, %function
+@ .align 2
+@ reset_handler:
+@     ldr sp, =_estack; # set stack pointer
+    
 
 
 

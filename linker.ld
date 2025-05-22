@@ -13,6 +13,7 @@ MEMORY
 _min_stack_size = 0x400; /* 400B */
 _estack = ORIGIN(SRAM) + _min_stack_size; /* sp decreases when pushed */
 
+
 SECTIONS
 {
     .isr_vector :
@@ -27,6 +28,7 @@ SECTIONS
     {
         . = ALIGN(4);
         _stext = .;
+        *(.text.reset_handler)
         *(.text*)
         . = ALIGN(4);
         _etext = .;
@@ -46,6 +48,7 @@ SECTIONS
         The startup code must then copy these values from 
         flash to RAM.
     */
+    _sidata = LOADADDR(.data);
 
     .bss :
     {
