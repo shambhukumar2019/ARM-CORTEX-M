@@ -48,7 +48,7 @@ SECTIONS
         The startup code must then copy these values from 
         flash to RAM.
     */
-    _sidata = LOADADDR(.data);
+    _sdata_flash = LOADADDR(.data);
 
     .bss :
     {

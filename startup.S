@@ -19,7 +19,7 @@
 .global systick_handler
 .global default_handler
 
-
+# linker script symbols
 .global _min_stack_size
 .global _estack
 .global _etext
@@ -35,9 +35,9 @@
 .word _estack
 .word _etext
 .word _stext
-.word _sdata    // executable addr of .data section
+.word _sdata            // executable addr of .data section
 .word _edata
-.word _sidata   // load addr of .data section
+.word _sdata_flash      // load addr of .data section
 .word _sbss
 .word _ebss
 
@@ -91,6 +91,9 @@ default_handler:
 
 # make all exception handlers as "weak" function except reset_handler
 # also "alias" them to default_handler
+
+.weak default_handler
+
 .weak nmi_handler
 .thumb_set default_handler, nmi_handler
 

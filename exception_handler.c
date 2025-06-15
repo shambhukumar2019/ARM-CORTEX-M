@@ -18,7 +18,7 @@ _ATTR((naked,section(".text.reset_handler"))) void reset_handler(void)
 {
     _ASM _VO ("\
         ldr sp, =_estack;\
-        ldr r0, =_sidata;\
+        ldr r0, =_sdata_flash;\
         ldr r1, =_sdata;\
         ldr r2, =_edata;\
         movs r3, #0;\
@@ -51,35 +51,54 @@ _ATTR((naked,section(".text.reset_handler"))) void reset_handler(void)
         \
         bl main;\
         ");
-        /*
-             BL (Branch with Link) instruction in the ARM Cortex-M4 
-             is used to call a subroutine or function. It works by 
-             branching to a specified target address and simultaneously 
-             saving the current program counter (PC) value in the 
-             link register (LR). This allows the program to return to 
-             the correct location after the subroutine has completed 
-             execution.
-        */
+    /*
+            BL (Branch with Link) instruction in the ARM Cortex-M4 
+            is used to call a subroutine or function. It works by 
+            branching to a specified target address and simultaneously 
+            saving the current program counter (PC) value in the 
+            link register (LR). This allows the program to return to 
+            the correct location after the subroutine has completed 
+            execution.
+    */
+    /*
+        // Initialize system clock
+        sys_clk_init();
+        init psp, msp
+        exception priorities
+        define idle task
+        task queue
+        set initial context of tasks with return @ to it's entry func
+    */
 }
 
 
 _ATTR((naked)) void systick_handler(void)
 {
-    
+    // handle time counter
+    // trigger pendsv 
 }
 
 
 _ATTR((naked)) void pendsv_handler(void)
 {
-    
+    // check whether psp or msp was in use
+    // context switch
+    // update psp to newly loaded task
 }
 
 
 _ATTR((naked)) void svc_handler(void)
 {
-    
+    // request kernel services such as task delays,
+    // inter-task communication, and resource management
 }
 
+
+/*
+    during task creation stack is allocated and psp is set
+    to point this stack, this is how user code is forced to use psp
+    when exception occurs cpu auto switches to msp
+*/
 
 
 
