@@ -13,9 +13,27 @@
 #include "exception_handler.h"
 
 
-
+/*
+            BL (Branch with Link) instruction in the ARM Cortex-M4 
+            is used to call a subroutine or function. It works by 
+            branching to a specified target address and simultaneously 
+            saving the current program counter (PC) value in the 
+            link register (LR). This allows the program to return to 
+            the correct location after the subroutine has completed 
+            execution.
+*/
+/*
+    // Initialize system clock
+    sys_clk_init();
+    init psp, msp
+    exception priorities
+    define idle task
+    task queue
+    set initial context of tasks with return @ to it's entry func
+*/
 _ATTR((naked,section(".text.reset_handler"))) void reset_handler(void)
 {
+
     _ASM _VO ("\
         ldr sp, =_estack;\
         ldr r0, =_sdata_flash;\
@@ -51,24 +69,7 @@ _ATTR((naked,section(".text.reset_handler"))) void reset_handler(void)
         \
         bl main;\
         ");
-    /*
-            BL (Branch with Link) instruction in the ARM Cortex-M4 
-            is used to call a subroutine or function. It works by 
-            branching to a specified target address and simultaneously 
-            saving the current program counter (PC) value in the 
-            link register (LR). This allows the program to return to 
-            the correct location after the subroutine has completed 
-            execution.
-    */
-    /*
-        // Initialize system clock
-        sys_clk_init();
-        init psp, msp
-        exception priorities
-        define idle task
-        task queue
-        set initial context of tasks with return @ to it's entry func
-    */
+    
 }
 
 

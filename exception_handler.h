@@ -15,16 +15,17 @@
 
 
 
-
 #define _ATTR    __attribute__
 #define _ASM     __asm   
 #define _VO      volatile
+
 
 #define SYSTICK_CSR   0xE000E010U   // control & status reg
 #define SYSTICK_RVR   0xE000E014U   // reload value reg
 #define SYSTICK_CVR   0xE000E018U   // 
 #define SYSTICK_CALIB 0xE000E01CU
 #define TIMEOUT       0x0000FFFFU
+
 
 
 extern _ATTR((naked,section(".text.reset_handler"))) void reset_handler(void);
@@ -34,6 +35,24 @@ extern _ATTR((naked)) void svc_handler(void);
 
 
 
+/*
+
+NOTE: special registers cann't be accessed directly in C/C++.
+       We need to use inline assembly to access them.
+
+For example, to read and write the Main Stack Pointer (MSP) register,
+we can use the following inline assembly code:
+// Declare variables to hold the current and new MSP values
+volatile uint32_t current_msp;
+volatile uint32_t new_msp = 0x20000000; // Example new value for MSP
+
+// Read current MSP value using MRS instruction
+__asm volatile ("MRS %0, MSP" : "=r" (current_msp));
+
+// Write new value to MSP using MSR instruction
+__asm volatile ("MSR MSP, %0" : : "r" (new_msp) : "memory");
+
+*/
 
 
 

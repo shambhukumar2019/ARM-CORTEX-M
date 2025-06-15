@@ -30,17 +30,6 @@
 .global _ebss
 
 
-# place address of all these labels in memory consecutively
-.word _min_stack_size
-.word _estack
-.word _etext
-.word _stext
-.word _sdata            // executable addr of .data section
-.word _edata
-.word _sdata_flash      // load addr of .data section
-.word _sbss
-.word _ebss
-
 
 /* 
     exception vector table

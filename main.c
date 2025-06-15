@@ -8,7 +8,7 @@ _ATTR((noreturn)) void main(void)
     // create tasks
 
     // start scheduler
-        systick_init();
+        //systick_init();
         // system call to init scheduler
 
     // Main application code goes here
