@@ -56,7 +56,7 @@ vector_list:
     .word   0                          // Reserved
     .word   pendsv_handler             // PendSV Handler
     .word   systick_handler            // SysTick Handler
-    .word   IRQ0                       // Interrupt 0
+    .word   WWDG_IRQHandler            // window watchdog interrupt handler
     .zero   300
 
 .size vector_list, . - vector_list  /* size of vector table */
