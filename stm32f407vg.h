@@ -4,26 +4,31 @@
 #include "stdint.h"
 
 
-// systick registers
-#define SYSTICK_RVR         (uint32_t *)0xE000E014U   // reload value reg
-#define SYSTICK_CSR         (uint32_t *)0xE000E010U   // control & status reg
-#define SYSTICK_CVR         (uint32_t *)0xE000E018U   // 
-#define SYSTICK_CALIB       (uint32_t *)0xE000E01CU
-#define TIMEOUT             0x0000FFFFUL
 
 
-// (RCC) reset and clock control registers
+// peripherals base address
 #define RCC_BASE_ADDR       0x40023800UL
+#define SYSTICK_BASE_ADDR   0xE000E010UL
 
-typedef struct rcc_reg
+
+typedef struct rcc_t
 {
     volatile uint32_t CR;
     volatile uint32_t PLLCFGR;
     volatile uint32_t CFGR;
-}rcc_reg;
+}rcc_t;
 
-#define RCC                 ((rcc_reg *)RCC_BASE_ADDR)
+typedef struct systick_t
+{
+    volatile uint32_t CSR;
+    volatile uint32_t RVR;
+    volatile uint32_t CVR;
+    volatile uint32_t CALIB;
+}systick_t;
 
+
+#define RCC                 ((rcc_t *)RCC_BASE_ADDR)
+#define SYSTICK             ((systick_t *)SYSTICK_BASE_ADDR)
 
 
 
