@@ -3,19 +3,19 @@
 
 #include "stdint.h"
 
-
+/********  write now it is for cortex m3, stm32f100rb  *********/
 
 
 // peripherals base address
-#define RCC_BASE_ADDR       0x40023800UL
+#define RCC_BASE_ADDR       0x40021000UL
 #define SYSTICK_BASE_ADDR   0xE000E010UL
 
 
 typedef struct rcc_t
 {
     volatile uint32_t CR;
-    volatile uint32_t PLLCFGR;
     volatile uint32_t CFGR;
+    volatile uint32_t CIR;
 }rcc_t;
 
 typedef struct systick_t
