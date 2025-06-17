@@ -13,17 +13,16 @@
 
 
 // (RCC) reset and clock control registers
-#define RCC_BASE_ADDR       (uint32_t *)0x40023800
-typedef struct rcc
+#define RCC_BASE_ADDR       0x40023800UL
+
+typedef struct rcc_reg
 {
-    volatile uint32_t * RCC_CR;
-};
+    volatile uint32_t CR;
+    volatile uint32_t PLLCFGR;
+    volatile uint32_t CFGR;
+}rcc_reg;
 
-
-
-#define RCC_CR              (RCC_BASE_ADDR + (uint32_t *)0x00)
-#define RCC_PLLCFGR         (RCC_BASE_ADDR + (uint32_t *)0x04)
-#define RCC_CFGR            (RCC_BASE_ADDR + (uint32_t *)0x08)
+#define RCC                 ((rcc_reg *)RCC_BASE_ADDR)
 
 
 

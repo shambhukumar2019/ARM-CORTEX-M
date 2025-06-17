@@ -6,7 +6,7 @@ void main(void)
 {
     volatile static uint32_t loc_var = 0;
     // define task control blocks and other data structures
-
+    
     // create tasks
 
     // start scheduler
