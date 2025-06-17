@@ -5,12 +5,11 @@ ENTRY(reset_handler)
 
 MEMORY
 {
-    FLASH(RX) : ORIGIN = 0x08000000, LENGTH = 1024K    /* 1MB */
-    SRAM(RWX) : ORIGIN = 0x20000000, LENGTH = 128K     /* 196KB */
-    CCRAM(RWX): ORIGIN = 0x10000000, LENGTH = 64K      /* 64KB */ 
+    FLASH(RX) : ORIGIN = 0x08000000, LENGTH = 128K    /* 1MB */
+    SRAM(RWX) : ORIGIN = 0x20000000, LENGTH = 8K     /* 196KB */
 }
 
-_min_stack_size = 0x400; /* 400B */
+_min_stack_size = 0x400; /* 1KB */
 _estack = ORIGIN(SRAM) + _min_stack_size; /* sp decreases when pushed */
 
 

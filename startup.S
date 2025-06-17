@@ -56,6 +56,7 @@ vector_list:
     .word   0                          // Reserved
     .word   pendsv_handler             // PendSV Handler
     .word   systick_handler            // SysTick Handler
+    .zero   300
 
 .size vector_list, . - vector_list  /* size of vector table */
 
@@ -69,7 +70,7 @@ vector_list:
     
 
 
-
+// undefined exceptions must reach here
 .section .text.default_handler
 .type default_handler, %function
 .align 2
@@ -84,30 +85,30 @@ default_handler:
 .weak default_handler
 
 .weak nmi_handler
-.thumb_set default_handler, nmi_handler
+.thumb_set nmi_handler, default_handler
 
 .weak hardfault_handler
-.thumb_set default_handler, hardfault_handler
+.thumb_set hardfault_handler, default_handler
 
 .weak memmanage_handler
-.thumb_set default_handler, memmanage_handler
+.thumb_set memmanage_handler, default_handler
 
 .weak busfault_handler
-.thumb_set default_handler, busfault_handler
+.thumb_set busfault_handler, default_handler
 
 .weak usagefault_handler
-.thumb_set default_handler, usagefault_handler
+.thumb_set usagefault_handler, default_handler
 
 .weak svc_handler
-.thumb_set default_handler, svc_handler
+.thumb_set svc_handler, default_handler
 
 .weak debug_monitor_handler
-.thumb_set default_handler, debug_monitor_handler
+.thumb_set debug_monitor_handler, default_handler
 
 .weak pendsv_handler
-.thumb_set default_handler, pendsv_handler
+.thumb_set pendsv_handler, default_handler
 
 .weak systick_handler
-.thumb_set default_handler, systick_handler
+.thumb_set systick_handler, default_handler
 
 

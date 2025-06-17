@@ -1,8 +1,10 @@
 #include "exception_handler.h"
 
+volatile uint32_t glob_var = 5;
 
-_ATTR((noreturn)) void main(void)
+void main(void)
 {
+    volatile static uint32_t loc_var = 0;
     // define task control blocks and other data structures
 
     // create tasks
