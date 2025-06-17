@@ -117,6 +117,9 @@ _ATTR((naked, section(".text.reset_handler"))) void reset_handler(void)
     // Initialize the system clock
     sys_clk_init();
     
+    // Initialize the systick timer
+    systick_init();
+    
     // Call the main function
     // This is the entry point of the application
     main();
