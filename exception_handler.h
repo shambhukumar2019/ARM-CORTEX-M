@@ -15,7 +15,6 @@
 
 #include "stm32f407vg.h"
 
-
 #define _ATTR    __attribute__
 
 
@@ -28,6 +27,16 @@ extern _ATTR((naked)) void svc_handler(void);
 
 
 extern void main(void);
+extern void sys_clk_init(void);
+extern void systick_init(void);
+
+
+extern uint32_t _estack; // Top of the stack
+extern uint32_t _sdata_flash; // Start of initialized data in flash
+extern uint32_t _sdata; // Start of initialized data in RAM
+extern uint32_t _edata; // End of initialized data in RAM
+extern uint32_t _sbss; // Start of uninitialized data (BSS) in RAM
+extern uint32_t _ebss; // End of uninitialized data (BSS) in RAM
 
 
 /*

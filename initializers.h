@@ -1,27 +1,12 @@
 #ifndef _INITIALIZERS_H
 #define _INITIALIZERS_H
 
+#include "stm32f407vg.h"
 
 
-extern void sys_clk_init(void);
+void sys_clk_init(void);
 
-extern void systick_init(void);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+void systick_init(void);
 
 
 

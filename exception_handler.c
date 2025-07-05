@@ -11,7 +11,6 @@
 
 
 #include "exception_handler.h"
-#include "initializers.h"
 
 
 
@@ -75,18 +74,14 @@ _ATTR((naked, section(".text.reset_handler"))) void reset_handler(void)
 {
     // volatile uint32_t current_msp = 0;
     // volatile uint32_t *new_msp = (uint32_t *)&_estack;
-    uint32_t *flash_data_start = (uint32_t *)&_sdata_flash;
-    uint32_t *ram_data_start = (uint32_t *)&_sdata;
-    uint32_t *ram_data_end = (uint32_t *)&_edata;
-    uint32_t *bss_start = (uint32_t *)&_sbss;
-    uint32_t *bss_end = (uint32_t *)&_ebss;
+    volatile uint32_t *flash_data_start = (uint32_t *)&_sdata_flash;
+    volatile uint32_t *ram_data_start = (uint32_t *)&_sdata;
+    // volatile uint32_t * const ram_data_end = (uint32_t * const)&_edata;
+    volatile uint32_t *bss_start = (uint32_t *)&_sbss;
+    // volatile uint32_t * const bss_end = (uint32_t * const)&_ebss;
 
-    extern uint32_t _estack; // Top of the stack
-    extern uint32_t _sdata_flash; // Start of initialized data in flash
-    extern uint32_t _sdata; // Start of initialized data in RAM
-    extern uint32_t _edata; // End of initialized data in RAM
-    extern uint32_t _sbss; // Start of uninitialized data (BSS) in RAM
-    extern uint32_t _ebss; // End of uninitialized data (BSS) in RAM
+    // Initialize the system clock
+    sys_clk_init();
 
     // __asm volatile("mrs %0, msp" : "=r" (current_msp));
 
@@ -99,7 +94,7 @@ _ATTR((naked, section(".text.reset_handler"))) void reset_handler(void)
 
     // copy initialised variable from flash to sram
     // This section is used for initialized global and static variables
-    while (ram_data_start != ram_data_end)
+    while (ram_data_start != &_edata)
     {
         *ram_data_start = *flash_data_start;
         ram_data_start += 1;
@@ -108,18 +103,15 @@ _ATTR((naked, section(".text.reset_handler"))) void reset_handler(void)
     
     // Zero initialize the BSS section
     // This section is used for uninitialized global and static variables
-    while (bss_start != bss_end)
+    while (bss_start != &_ebss)
     {
         *bss_start = 0;
         bss_start += 1;
     }
     
-    // Initialize the system clock
-    sys_clk_init();
-    
     // Initialize the systick timer
     systick_init();
-    
+
     // Call the main function
     // This is the entry point of the application
     main();

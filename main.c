@@ -1,10 +1,9 @@
-#include "exception_handler.h"
+#include "stm32f407vg.h"
 
-volatile uint32_t glob_var = 5;
+volatile uint32_t glob_var;
 
 void main(void)
 {
-    volatile static uint32_t loc_var = 0;
     // define task control blocks and other data structures
     
     // create tasks

@@ -6,12 +6,12 @@ CC_PREFIX ?= arm-none-eabi
 QEMU_ARM ?= qemu-system-arm
 
 # ?= means assign value only if previously not done
-SRC ?= task1.c task2.c startup.S exception_handler.c main.c
+SRC ?= task1.c task2.c startup.S exception_handler.c main.c initializers.c
 INC ?= stm32f407vg_disc1board
 
 
 elf: 
-	$(CC_PREFIX)-gcc -Wall -mcpu=$(CPU) -Tlinker.ld -Wl,-Map=main.map -I$(INC) -mthumb -g -nostartfiles $(SRC) -o $(TARGET).elf
+	$(CC_PREFIX)-gcc -Wall -O0 -mcpu=$(CPU) -Tlinker.ld -Wl,-Map=main.map -I$(INC) -mthumb -g -nostartfiles $(SRC) -o $(TARGET).elf
 	
 	$(CC_PREFIX)-objdump -D -S $(TARGET).elf > $(TARGET).lst
 	$(CC_PREFIX)-readelf -a $(TARGET).elf > $(TARGET).debug

@@ -17,6 +17,7 @@
 .global debug_monitor_handler
 .global pendsv_handler
 .global systick_handler
+.global wwdg_irqhandler
 .global default_handler
 
 # linker script symbols
@@ -56,7 +57,7 @@ vector_list:
     .word   0                          // Reserved
     .word   pendsv_handler             // PendSV Handler
     .word   systick_handler            // SysTick Handler
-    .word   WWDG_IRQHandler            // window watchdog interrupt handler
+    .word   wwdg_irqhandler            // window watchdog interrupt handler
     .zero   300
 
 .size vector_list, . - vector_list  /* size of vector table */
@@ -111,5 +112,8 @@ default_handler:
 
 .weak systick_handler
 .thumb_set systick_handler, default_handler
+
+.weak wwdg_irqhandler
+.thumb_set wwdg_irqhandler, default_handler
 
 
